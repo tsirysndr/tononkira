@@ -5,7 +5,7 @@ use colored_json::ToColoredJson;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use surf::{Client, Config, Url};
-use tononkira::constants::{BASE_URL, END_OF_TOKONONKIRA};
+use tononkira::constants::{BASE_URL, END_OF_TONONKIRA};
 use urlencoding::encode;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -119,7 +119,7 @@ async fn parse_lyrics(client: &Client, link: &str) -> Result<Vec<String>, surf::
         if i < 13 {
             continue;
         }
-        if line.contains(END_OF_TOKONONKIRA) {
+        if line.contains(END_OF_TONONKIRA) {
             break;
         }
         lyrics.push(line.to_string());
