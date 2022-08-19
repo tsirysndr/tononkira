@@ -1,8 +1,12 @@
 use std::time::Duration;
 
+use clap::Command;
+use colored_json::ToColoredJson;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use surf::{Client, Config, Url};
+use tononkira::constants::{BASE_URL, END_OF_TOKONONKIRA};
+use urlencoding::encode;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Lyrics {
@@ -13,16 +17,33 @@ pub struct Lyrics {
     pub lines: Vec<String>,
 }
 
+fn cli() -> Command<'static> {
+    Command::new("Tononkira")
+        .version("0.1.0")
+        .author("Tsiry Sandratraina <tsiry.sndr@aol.com>")
+        .about("Search lyrics from tononkira.serasera.org")
+        .arg(
+            clap::Arg::with_name("keywords")
+                .help("The song's title or artist")
+                .required(true)
+                .index(1),
+        )
+}
+
 #[tokio::main]
 async fn main() -> Result<(), surf::Error> {
-    const BASE_URL: &str = "https://tononkira.serasera.org/";
-
+    let matches = cli().get_matches();
     let client: Client = Config::new()
         .set_base_url(Url::parse(BASE_URL)?)
         .set_timeout(Some(Duration::from_secs(5)))
         .try_into()?;
 
-    let page = client.get("/tononkira?q=ayam").recv_string().await?;
+    let keywords = matches.value_of("keywords").unwrap();
+
+    let page = client
+        .get(format!("/tononkira?q={}", encode(keywords)))
+        .recv_string()
+        .await?;
     let document = Html::parse_document(&page);
     let selector = Selector::parse("td").unwrap();
 
@@ -55,7 +76,10 @@ async fn main() -> Result<(), surf::Error> {
     let mut lyrics: Vec<Lyrics> = Vec::new();
 
     for (i, artist) in artists.iter().enumerate() {
-        let lines = parse_lyrics(&client, title_urls[i]).await?;
+        let mut lines: Vec<String> = Vec::new();
+        if artists.len() < 5 {
+            lines = parse_lyrics(&client, title_urls[i]).await?;
+        }
         lyrics.push(Lyrics {
             artist: artist.to_string(),
             title: titles[i].to_string(),
@@ -65,7 +89,10 @@ async fn main() -> Result<(), surf::Error> {
         });
     }
 
-    println!("{}", serde_json::to_string(&lyrics).unwrap());
+    println!(
+        "{}",
+        serde_json::to_string(&lyrics)?.to_colored_json_auto()?
+    );
 
     Ok(())
 }
@@ -81,7 +108,7 @@ async fn parse_lyrics(client: &Client, link: &str) -> Result<Vec<String>, surf::
         if i < 13 {
             continue;
         }
-        if line.contains("Hametraka hevitra") {
+        if line.contains(END_OF_TOKONONKIRA) {
             break;
         }
         lyrics.push(line.to_string());
