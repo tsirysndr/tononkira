@@ -21,7 +21,18 @@ fn cli() -> Command<'static> {
     Command::new("Tononkira")
         .version("0.1.0")
         .author("Tsiry Sandratraina <tsiry.sndr@aol.com>")
-        .about("Search lyrics from tononkira.serasera.org")
+        .about(
+            r#"
+ _______                      _    _           
+|__   __|                    | |  (_)          
+   | | ___  _ __   ___  _ __ | | ___ _ __ __ _ 
+   | |/ _ \| '_ \ / _ \| '_ \| |/ / | '__/ _` |
+   | | (_) | | | | (_) | | | |   <| | | | (_| |
+   |_|\___/|_| |_|\___/|_| |_|_|\_\_|_|  \__,_|
+                                                
+Search lyrics from tononkira.serasera.org
+"#,
+        )
         .arg(
             clap::Arg::with_name("keywords")
                 .help("The song's title or artist")
