@@ -18,8 +18,9 @@ pub struct Lyrics {
 }
 
 fn cli() -> Command<'static> {
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
     Command::new("Tononkira")
-        .version("0.1.0")
+        .version(VERSION)
         .author("Tsiry Sandratraina <tsiry.sndr@aol.com>")
         .about(
             r#"
