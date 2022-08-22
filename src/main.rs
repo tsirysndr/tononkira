@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use clap::Command;
+use clap::{arg, Arg, ArgAction, Command};
 use colored_json::ToColoredJson;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
@@ -35,7 +35,19 @@ Search lyrics from tononkira.serasera.org
 "#,
         )
         .arg(
-            clap::Arg::with_name("keywords")
+            arg!(
+                -a --artist ... "song's artist"
+            )
+            .action(ArgAction::SetTrue),
+        )
+        .arg(
+            arg!(
+                -t --title ... "song's title"
+            )
+            .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::with_name("keywords")
                 .help("The song's title or artist")
                 .required(true)
                 .index(1),
@@ -45,6 +57,10 @@ Search lyrics from tononkira.serasera.org
 #[tokio::main]
 async fn main() -> Result<(), surf::Error> {
     let matches = cli().get_matches();
+
+    let is_artist_search = *matches.get_one::<bool>("artist").unwrap();
+    let is_title_search = *matches.get_one::<bool>("title").unwrap();
+
     let client: Client = Config::new()
         .set_base_url(Url::parse(BASE_URL)?)
         .set_timeout(Some(Duration::from_secs(5)))
@@ -92,13 +108,46 @@ async fn main() -> Result<(), surf::Error> {
         if artists.len() < 5 {
             lines = parse_lyrics(&client, title_urls[i]).await?;
         }
-        lyrics.push(Lyrics {
-            artist: artist.to_string(),
-            title: titles[i].to_string(),
-            artist_url: artist_urls[i].to_string(),
-            title_url: title_urls[i].to_string(),
-            lines,
-        });
+        if is_artist_search
+            && !is_title_search
+            && artist
+                .to_string()
+                .to_lowercase()
+                .contains(keywords.to_lowercase().as_str())
+        {
+            lyrics.push(Lyrics {
+                artist: artist.to_string(),
+                title: titles[i].to_string(),
+                artist_url: artist_urls[i].to_string(),
+                title_url: title_urls[i].to_string(),
+                lines,
+            });
+            continue;
+        }
+        if is_title_search
+            && !is_artist_search
+            && titles[i]
+                .to_lowercase()
+                .contains(keywords.to_lowercase().as_str())
+        {
+            lyrics.push(Lyrics {
+                artist: artist.to_string(),
+                title: titles[i].to_string(),
+                artist_url: artist_urls[i].to_string(),
+                title_url: title_urls[i].to_string(),
+                lines,
+            });
+            continue;
+        }
+        if !is_artist_search && !is_title_search {
+            lyrics.push(Lyrics {
+                artist: artist.to_string(),
+                title: titles[i].to_string(),
+                artist_url: artist_urls[i].to_string(),
+                title_url: title_urls[i].to_string(),
+                lines,
+            });
+        }
     }
 
     println!(
