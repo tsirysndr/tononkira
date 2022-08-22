@@ -47,6 +47,12 @@ Search lyrics from tononkira.serasera.org
             .action(ArgAction::SetTrue),
         )
         .arg(
+            arg!(
+                -l --lyrics ... "song's lyrics"
+            )
+            .action(ArgAction::SetTrue),
+        )
+        .arg(
             Arg::with_name("keywords")
                 .help("The song's title or artist")
                 .required(true)
@@ -60,6 +66,7 @@ async fn main() -> Result<(), surf::Error> {
 
     let is_artist_search = *matches.get_one::<bool>("artist").unwrap();
     let is_title_search = *matches.get_one::<bool>("title").unwrap();
+    let is_lyrics_search = *matches.get_one::<bool>("lyrics").unwrap();
 
     let client: Client = Config::new()
         .set_base_url(Url::parse(BASE_URL)?)
@@ -110,6 +117,7 @@ async fn main() -> Result<(), surf::Error> {
         }
         if is_artist_search
             && !is_title_search
+            && !is_lyrics_search
             && artist
                 .to_string()
                 .to_lowercase()
@@ -126,6 +134,7 @@ async fn main() -> Result<(), surf::Error> {
         }
         if is_title_search
             && !is_artist_search
+            && !is_lyrics_search
             && titles[i]
                 .to_lowercase()
                 .contains(keywords.to_lowercase().as_str())
@@ -139,7 +148,24 @@ async fn main() -> Result<(), surf::Error> {
             });
             continue;
         }
-        if !is_artist_search && !is_title_search {
+        if is_lyrics_search
+            && !is_artist_search
+            && !is_title_search
+            && !artist
+                .to_string()
+                .to_lowercase()
+                .contains(keywords.to_lowercase().as_str())
+        {
+            lyrics.push(Lyrics {
+                artist: artist.to_string(),
+                title: titles[i].to_string(),
+                artist_url: artist_urls[i].to_string(),
+                title_url: title_urls[i].to_string(),
+                lines,
+            });
+            continue;
+        }
+        if !is_artist_search && !is_title_search && !is_lyrics_search {
             lyrics.push(Lyrics {
                 artist: artist.to_string(),
                 title: titles[i].to_string(),
