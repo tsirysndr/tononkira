@@ -1,12 +1,15 @@
 [package]
 name = "tononkira"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Rust library and CLI for Tononkira (https://tononkira.serasera.org/)"
 documentation = "https://docs.rs/tononkira"
 readme = "README.md"
 repository = "https://github.com/tsirysndr/tononkira"
 license = "MIT"
+authors = ["Tsiry Sandratraina <tsiry.sndr@aol.com>"]
+categories = ["command-line-utilities"]
+keywords = ["tokio", "lyrics", "cli"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
