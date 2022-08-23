@@ -1,16 +1,6 @@
 use clap::{arg, Arg, ArgAction, Command};
 use colored_json::ToColoredJson;
-use serde::{Deserialize, Serialize};
 use tononkira::{parser::Parser, types::Options};
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Lyrics {
-    pub artist: String,
-    pub title: String,
-    pub artist_url: String,
-    pub title_url: String,
-    pub lines: Vec<String>,
-}
 
 fn cli() -> Command<'static> {
     const VERSION: &str = env!("CARGO_PKG_VERSION");
