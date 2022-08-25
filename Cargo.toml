@@ -1,6 +1,6 @@
 [package]
 name = "tononkira"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "Rust library and CLI for Tononkira (https://tononkira.serasera.org/)"
 documentation = "https://docs.rs/tononkira"
