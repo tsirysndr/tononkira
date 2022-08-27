@@ -4,6 +4,9 @@
   <a href="https://crates.io/crates/tononkira" target="_blank">
     <img src="https://img.shields.io/crates/v/tononkira.svg" />
   </a>
+   <a href="https://crates.io/crates/tononkira" target="_blank">
+    <img src="https://img.shields.io/crates/dr/tononkira" />
+  </a>
   <a href="https://docs.rs/tononkira" target="_blank">
     <img src="https://docs.rs/tononkira/badge.svg" />
   </a>
