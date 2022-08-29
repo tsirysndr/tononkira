@@ -5,7 +5,7 @@ on:
 jobs:
   release:
     name: release ${{ matrix.target }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
@@ -15,12 +15,8 @@ jobs:
           - target: x86_64-unknown-linux-musl
             archive: tar.gz tar.xz
           - target: x86_64-apple-darwin
-            os: macos-latest
             archive: zip
     steps:
-      - name: Installing needed macOS dependencies
-        if: matrix.os == 'macos-latest'
-        run: brew install llvm@12
       - uses: actions/checkout@master
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.3.2
