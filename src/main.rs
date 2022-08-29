@@ -1,6 +1,7 @@
-use clap::{arg, Arg, ArgAction, Command};
+use clap::{arg, Arg, Command};
 use colored_json::ToColoredJson;
-use tononkira::{parser::Parser, types::Options};
+use tabled::{Style, Table};
+use tononkira::{colorizer::print_colorized, parser::Parser, types::Options};
 
 fn cli() -> Command<'static> {
     const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -21,27 +22,32 @@ Search lyrics from tononkira.serasera.org
         )
         .arg(
             arg!(
-                -a --artist ... "song's artist"
+                -a --artist [value] "song's artist"
             )
-            .action(ArgAction::SetTrue),
+            .required(false),
         )
         .arg(
             arg!(
-                -t --title ... "song's title"
+                -t --title [value] "song's title"
             )
-            .action(ArgAction::SetTrue),
+            .required(false),
         )
         .arg(
             arg!(
-                -l --lyrics ... "song's lyrics"
+                -l --lyrics [value] "song's lyrics"
             )
-            .action(ArgAction::SetTrue),
+            .required(false),
+        )
+        .arg(
+            arg!(
+                -j --json ... "output in json format"
+            )
+            .required(false),
         )
         .arg(
             Arg::with_name("keywords")
                 .help("The song's title or artist")
-                .required(true)
-                .index(1),
+                .required(false),
         )
 }
 
@@ -49,23 +55,40 @@ Search lyrics from tononkira.serasera.org
 async fn main() -> Result<(), surf::Error> {
     let matches = cli().get_matches();
 
-    let is_artist_search = *matches.get_one::<bool>("artist").unwrap();
-    let is_title_search = *matches.get_one::<bool>("title").unwrap();
-    let is_lyrics_search = *matches.get_one::<bool>("lyrics").unwrap();
+    let is_artist_search = matches.get_one::<String>("artist").is_some();
+    let is_title_search = matches.get_one::<String>("title").is_some();
+    let is_lyrics_search = matches.get_one::<String>("lyrics").is_some();
 
-    let keywords = matches.value_of("keywords").unwrap();
+    let keywords = matches.value_of("keywords").unwrap_or("");
     let options = Options {
         is_artist_search,
         is_title_search,
         is_lyrics_search,
+        artist: Some(matches.value_of("artist").unwrap_or("").to_string()),
+        title: Some(matches.value_of("title").unwrap_or("").to_string()),
+        lyrics: Some(matches.value_of("lyrics").unwrap_or("").to_string()),
     };
 
     let parser = Parser::new();
     let lyrics = parser.search(keywords, options).await?;
-    println!(
-        "{}",
-        serde_json::to_string(&lyrics)?.to_colored_json_auto()?
-    );
+
+    if lyrics.len() == 0 {
+        println!("No lyrics found");
+        return Ok(());
+    }
+
+    if matches.is_present("json") {
+        println!(
+            "{}",
+            serde_json::to_string(&lyrics)?.to_colored_json_auto()?
+        );
+    } else {
+        if lyrics.len() == 1 {
+            print_colorized(&lyrics[0]);
+        } else {
+            println!("\n{}", Table::new(&lyrics).with(Style::psql()));
+        }
+    }
 
     Ok(())
 }

@@ -5,7 +5,7 @@ use surf::{Client, Config, Url};
 use urlencoding::encode;
 
 use crate::{
-    constants::{BASE_URL, END_OF_TONONKIRA},
+    constants::{BASE_URL, END_OF_TONONKIRA_1, END_OF_TONONKIRA_2},
     types::{Lyrics, Options},
 };
 
@@ -28,18 +28,86 @@ impl Parser {
         keywords: &str,
         options: Options,
     ) -> Result<Vec<Lyrics>, surf::Error> {
-        let page = self
+        let mut page = self
             .client
             .get(format!("/tononkira?q={}", encode(keywords)))
             .recv_string()
             .await?;
+
+        if options.is_artist_search && options.is_title_search {
+            page = self
+                .client
+                .get(format!(
+                    "/tononkira?lohateny_like=on&lohateny={}&anarana_like=on&anarana={}",
+                    encode(&options.title.unwrap()),
+                    encode(&options.artist.unwrap())
+                ))
+                .recv_string()
+                .await?;
+        } else if options.is_artist_search && !options.is_title_search {
+            page = self
+                .client
+                .get(format!(
+                    "/tononkira?anarana_like=on&anarana={}",
+                    encode(&options.artist.unwrap())
+                ))
+                .recv_string()
+                .await?;
+        } else if options.is_title_search && !options.is_artist_search {
+            page = self
+                .client
+                .get(format!(
+                    "/tononkira?lohateny_like=on&lohateny={}",
+                    encode(&options.title.unwrap())
+                ))
+                .recv_string()
+                .await?;
+        } else if options.is_lyrics_search && !options.is_title_search && !options.is_artist_search
+        {
+            page = self
+                .client
+                .get(format!(
+                    "/tononkira?hira={}",
+                    encode(&options.lyrics.unwrap())
+                ))
+                .recv_string()
+                .await?;
+        }
+
         let document = Html::parse_document(&page);
+
+        let (artists, titles, artist_urls, title_urls) =
+            self.parse_artist_and_title(&document).await.unwrap();
+
+        let mut lyrics: Vec<Lyrics> = Vec::new();
+
+        for (i, artist) in artists.iter().enumerate() {
+            let mut lines: Vec<String> = Vec::new();
+            if artists.len() < 5 {
+                lines = self.parse_lyrics(&title_urls[i]).await?;
+            }
+            lyrics.push(Lyrics {
+                artist: artist.to_string(),
+                title: titles[i].to_string(),
+                artist_url: artist_urls[i].to_string(),
+                title_url: title_urls[i].to_string(),
+                lines,
+            });
+        }
+
+        Ok(lyrics)
+    }
+
+    pub async fn parse_artist_and_title(
+        &self,
+        document: &Html,
+    ) -> Result<(Vec<String>, Vec<String>, Vec<String>, Vec<String>), ()> {
         let selector = Selector::parse("td").unwrap();
 
-        let mut artists: Vec<&str> = Vec::new();
-        let mut titles: Vec<&str> = Vec::new();
-        let mut artist_urls: Vec<&str> = Vec::new();
-        let mut title_urls: Vec<&str> = Vec::new();
+        let mut artists: Vec<String> = Vec::new();
+        let mut titles: Vec<String> = Vec::new();
+        let mut artist_urls: Vec<String> = Vec::new();
+        let mut title_urls: Vec<String> = Vec::new();
 
         for element in document.select(&selector) {
             element
@@ -52,85 +120,16 @@ impl Parser {
                         return;
                     }
                     if href.contains("/hira/") {
-                        titles.push(a.text().collect::<Vec<_>>()[0]);
-                        title_urls.push(href);
+                        titles.push(a.text().collect::<Vec<_>>()[0].to_string());
+                        title_urls.push(href.to_string());
                     }
                     if href.contains("/mpihira/") {
-                        artists.push(a.text().collect::<Vec<_>>()[0]);
-                        artist_urls.push(href);
+                        artists.push(a.text().collect::<Vec<_>>()[0].to_string());
+                        artist_urls.push(href.to_string());
                     }
                 });
         }
-
-        let mut lyrics: Vec<Lyrics> = Vec::new();
-
-        for (i, artist) in artists.iter().enumerate() {
-            let mut lines: Vec<String> = Vec::new();
-            if artists.len() < 5 {
-                lines = self.parse_lyrics(title_urls[i]).await?;
-            }
-            if options.is_artist_search
-                && !options.is_title_search
-                && !options.is_lyrics_search
-                && artist
-                    .to_string()
-                    .to_lowercase()
-                    .contains(keywords.to_lowercase().as_str())
-            {
-                lyrics.push(Lyrics {
-                    artist: artist.to_string(),
-                    title: titles[i].to_string(),
-                    artist_url: artist_urls[i].to_string(),
-                    title_url: title_urls[i].to_string(),
-                    lines,
-                });
-                continue;
-            }
-            if options.is_title_search
-                && !options.is_artist_search
-                && !options.is_lyrics_search
-                && titles[i]
-                    .to_lowercase()
-                    .contains(keywords.to_lowercase().as_str())
-            {
-                lyrics.push(Lyrics {
-                    artist: artist.to_string(),
-                    title: titles[i].to_string(),
-                    artist_url: artist_urls[i].to_string(),
-                    title_url: title_urls[i].to_string(),
-                    lines,
-                });
-                continue;
-            }
-            if options.is_lyrics_search
-                && !options.is_artist_search
-                && !options.is_title_search
-                && !artist
-                    .to_string()
-                    .to_lowercase()
-                    .contains(keywords.to_lowercase().as_str())
-            {
-                lyrics.push(Lyrics {
-                    artist: artist.to_string(),
-                    title: titles[i].to_string(),
-                    artist_url: artist_urls[i].to_string(),
-                    title_url: title_urls[i].to_string(),
-                    lines,
-                });
-                continue;
-            }
-            if !options.is_artist_search && !options.is_title_search && !options.is_lyrics_search {
-                lyrics.push(Lyrics {
-                    artist: artist.to_string(),
-                    title: titles[i].to_string(),
-                    artist_url: artist_urls[i].to_string(),
-                    title_url: title_urls[i].to_string(),
-                    lines,
-                });
-            }
-        }
-
-        Ok(lyrics)
+        Ok((artists, titles, artist_urls, title_urls))
     }
 
     pub async fn parse_lyrics(&self, link: &str) -> Result<Vec<String>, surf::Error> {
@@ -144,7 +143,7 @@ impl Parser {
             if i < 13 {
                 continue;
             }
-            if line.contains(END_OF_TONONKIRA) {
+            if line.contains(END_OF_TONONKIRA_1) || line.contains(END_OF_TONONKIRA_2) {
                 break;
             }
             lyrics.push(line.to_string());

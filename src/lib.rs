@@ -14,6 +14,7 @@
 //!
 //! A command line interface and Rust library for [tononkira.serasera.org](https://tononkira.serasera.org).
 
+pub mod colorizer;
 pub mod constants;
 pub mod parser;
 pub mod types;
