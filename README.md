@@ -20,7 +20,7 @@
 
 A command line interface for [tononkira.serasera.org](https://tononkira.serasera.org).
 
-<img width="80%" src="./preview.svg">
+<img width="800" src="./preview.svg">
 
 ## Installation
 
