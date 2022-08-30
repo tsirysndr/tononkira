@@ -140,7 +140,7 @@ impl Parser {
         let lines = row.text().collect::<Vec<_>>();
         let mut lyrics = Vec::new();
         for (i, line) in lines.iter().enumerate() {
-            if i < 13 {
+            if i < 13 || "tononkira.serasera.org" == line.to_string() {
                 continue;
             }
             if line.contains(END_OF_TONONKIRA_1) || line.contains(END_OF_TONONKIRA_2) {
