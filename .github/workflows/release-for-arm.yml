@@ -53,6 +53,10 @@ jobs:
         run: |
           echo "RUSTFLAGS=-C linker=aarch64-linux-gnu-gcc -L/usr/aarch64-linux-gnu/lib" >> $GITHUB_ENV
 
+      - name: Setup NDK Path
+        if: matrix.target == 'aarch64-linux-android' || matrix.target == 'i686-linux-android' || matrix.target == 'x86_64-linux-android'
+        run: export PATH = $PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+
       - name: Running cargo build
         uses: actions-rs/cargo@v1
         with:
