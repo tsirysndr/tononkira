@@ -39,6 +39,10 @@ jobs:
           ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi-clang
           ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-clang
           ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-clang
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Installing needed Ubuntu arm dependencies
