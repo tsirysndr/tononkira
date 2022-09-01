@@ -26,6 +26,9 @@ jobs:
           override: true
       - name: Checking out sources
         uses: actions/checkout@v1
+      - name: Installing musl
+        if: matrix.target == 'i686-unknown-linux-musl'
+        run: sudo apt-get install musl-tools
       - name: Installing needed Ubuntu armhf dependencies
         if: matrix.target == 'aarch64-unknown-linux-gnu' || matrix.target == 'armv7-unknown-linux-gnueabihf' || matrix.target == 'arm-unknown-linux-gnueabi'
         run: |
