@@ -9,11 +9,13 @@ jobs:
     strategy:
       matrix:
         target:
-          [
-            aarch64-unknown-linux-gnu,
-            armv7-unknown-linux-gnueabihf,
-            arm-unknown-linux-gnueabi,
-          ]
+          - "aarch64-unknown-linux-gnu"
+          - "armv7-unknown-linux-gnueabihf"
+          - "arm-unknown-linux-gnueabi"
+          - "armv7-linux-androideabi"
+          - "aarch64-linux-android"
+          - "i686-linux-android"
+          - "x86_64-linux-android"
 
     steps:
       - name: Installing Rust toolchain
@@ -26,7 +28,31 @@ jobs:
         uses: actions/checkout@v1
       - name: Add OpenSSL package
         run: echo 'openssl = { version = "0.10.41", features = ["vendored"] }' | tee -a Cargo.toml
+      - name: Install Android NDK
+        if: matrix.target == 'aarch64-linux-android' || matrix.target == 'i686-linux-android' || matrix.target == 'x86_64-linux-android' || matrix.target == 'armv7-linux-androideabi'
+        run: |
+          wget https://dl.google.com/android/repository/android-ndk-r22b-linux-x86_64.zip
+          unzip android-ndk-r22b-linux-x86_64.zip
+          wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
+          unzip android-ndk-r25b-linux.zip
+          cp android-ndk-r22b/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/21
+          cp android-ndk-r22b/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/lib/gcc/aarch64-linux-android/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/21
+          cp android-ndk-r22b/toolchains/x86-4.9/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/21
+          cp android-ndk-r22b/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/21
+          echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/android-ndk-r25b" >> $GITHUB_ENV
+          echo "$GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-clang
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi-clang
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-clang
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-clang
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-clang
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar
+          ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar
       - name: Installing needed Ubuntu arm dependencies
+        if: matrix.target == 'aarch64-unknown-linux-gnu' || matrix.target == 'armv7-unknown-linux-gnueabihf' || matrix.target == 'arm-unknown-linux-gnueabi'
         run: |
           sudo apt-get install -y -qq gcc-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross gcc-aarch64-linux-gnu libc6-arm64-cross libc6-dev-arm64-cross libc6-armel-cross libc6-dev-armel-cross binutils-arm-linux-gnueabi gcc-arm-linux-gnueabi libncurses5-dev build-essential bison flex libssl-dev bc pkg-config libudev-dev libssl-dev
       - name: Configure Rust FLAGS
@@ -41,6 +67,23 @@ jobs:
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           echo "RUSTFLAGS=-C linker=aarch64-linux-gnu-gcc -L/usr/aarch64-linux-gnu/lib" >> $GITHUB_ENV
+
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'aarch64-linux-android'
+        run: |
+          echo "RUSTFLAGS=-C linker=aarch64-linux-android-clang -L$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/21" >> $GITHUB_ENV
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'armv7-linux-androideabi'
+        run: |
+          echo "RUSTFLAGS=-C linker=armv7a-linux-androideabi-clang -L$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/21" >> $GITHUB_ENV
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'i686-linux-android'
+        run: |
+          echo "RUSTFLAGS=-C linker=i686-linux-android-clang -L$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/21" >> $GITHUB_ENV
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'x86_64-linux-android'
+        run: |
+          echo "RUSTFLAGS=-C linker=x86_64-linux-android-clang -L$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/21" >> $GITHUB_ENV
 
       - name: Running cargo build
         uses: actions-rs/cargo@v1

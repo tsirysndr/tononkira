@@ -23,6 +23,8 @@ jobs:
         with:
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
+      - name: Clean up
+        run: sudo rm -rf target
       - name: Installing Rust toolchain
         if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: actions-rs/toolchain@v1
