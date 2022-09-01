@@ -55,6 +55,8 @@ Search lyrics from tononkira.serasera.org
 async fn main() -> Result<(), surf::Error> {
     let matches = cli().get_matches();
 
+    openssl_probe::init_ssl_cert_env_vars();
+
     let is_artist_search = matches.get_one::<String>("artist").is_some();
     let is_title_search = matches.get_one::<String>("title").is_some();
     let is_lyrics_search = matches.get_one::<String>("lyrics").is_some();

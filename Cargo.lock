@@ -2031,10 +2031,11 @@ dependencies = [
 
 [[package]]
 name = "tononkira"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "clap",
  "colored_json",
+ "openssl-probe",
  "owo-colors",
  "rand 0.8.5",
  "scraper",
