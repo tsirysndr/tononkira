@@ -21,7 +21,7 @@ jobs:
       - name: Installing Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: stable
           target: ${{ matrix.target }}
           override: true
       - name: Checking out sources
@@ -31,8 +31,14 @@ jobs:
       - name: Install Android NDK
         if: matrix.target == 'aarch64-linux-android' || matrix.target == 'i686-linux-android' || matrix.target == 'x86_64-linux-android' || matrix.target == 'armv7-linux-androideabi'
         run: |
+          wget https://dl.google.com/android/repository/android-ndk-r22b-linux-x86_64.zip
+          unzip android-ndk-r22b-linux-x86_64.zip
           wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
           unzip android-ndk-r25b-linux.zip
+          cp android-ndk-r22b/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/21
+          cp android-ndk-r22b/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/lib/gcc/aarch64-linux-android/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/21
+          cp android-ndk-r22b/toolchains/x86-4.9/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/21
+          cp android-ndk-r22b/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/libgcc.a android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/21
           echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/android-ndk-r25b" >> $GITHUB_ENV
           echo "$GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
           ln -s $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang $GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-clang
