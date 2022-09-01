@@ -24,14 +24,14 @@ jobs:
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
       - name: Installing Rust toolchain
-        if: matrix.target != 'x86_64-pc-windows-gnu' && matrix.target != 'x86_64-unknown-linux-musl'
+        if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: x86_64-unknown-linux-gnu
           override: true
       - name: Running cargo build
-        if: matrix.target != 'x86_64-pc-windows-gnu' && matrix.target != 'x86_64-unknown-linux-musl'
+        if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: actions-rs/cargo@v1
         with:
           command: build
@@ -40,14 +40,14 @@ jobs:
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Packaging final binary
-        if: matrix.target != 'x86_64-pc-windows-gnu' && matrix.target != 'x86_64-unknown-linux-musl'
+        if: matrix.target == 'x86_64-unknown-linux-musl'
         shell: bash
         run: |
           cd target/x86_64-unknown-linux-gnu/release
           tar czvf tononkira_${{ env.RELEASE_VERSION }}_x86_64-unknown-linux-gnu.tar.gz tononkira
           shasum -a 512 tononkira_${{ env.RELEASE_VERSION }}_x86_64-unknown-linux-gnu.tar.gz > tononkira_${{ env.RELEASE_VERSION }}_x86_64-unknown-linux-gnu.tar.gz.sha512
       - name: Releasing assets
-        if: matrix.target != 'x86_64-pc-windows-gnu' && matrix.target != 'x86_64-unknown-linux-musl'
+        if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: softprops/action-gh-release@v1
         with:
           files: |
