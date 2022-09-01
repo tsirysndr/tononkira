@@ -35,6 +35,7 @@ jobs:
           unzip android-ndk-r25b-linux.zip
           echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/android-ndk-r25b" >> $GITHUB_ENV
           echo "$GITHUB_WORKSPACE/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+          ls $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Installing needed Ubuntu arm dependencies
