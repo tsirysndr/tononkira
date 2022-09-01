@@ -37,7 +37,7 @@ jobs:
           add-to-path: true
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-          PATH: $PATH:${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
+          PATH: ${{ env.PATH }}:${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
       - name: Installing needed Ubuntu arm dependencies
         run: |
           sudo apt-get install -y -qq gcc-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross gcc-aarch64-linux-gnu libc6-arm64-cross libc6-dev-arm64-cross libc6-armel-cross libc6-dev-armel-cross binutils-arm-linux-gnueabi gcc-arm-linux-gnueabi libncurses5-dev build-essential bison flex libssl-dev bc pkg-config libudev-dev libssl-dev
