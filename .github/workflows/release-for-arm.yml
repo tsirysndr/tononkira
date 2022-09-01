@@ -24,15 +24,30 @@ jobs:
           override: true
       - name: Checking out sources
         uses: actions/checkout@v1
-      - name: Installing needed Ubuntu armhf dependencies
+      - name: Add OpenSSL package
+        run: echo 'openssl = { version = "0.10.41", features = ["vendored"] }' | tee -a Cargo.toml
+      - name: Installing needed Ubuntu arm dependencies
         run: |
           sudo apt-get install -y -qq gcc-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross gcc-aarch64-linux-gnu libc6-arm64-cross libc6-dev-arm64-cross libc6-armel-cross libc6-dev-armel-cross binutils-arm-linux-gnueabi gcc-arm-linux-gnueabi libncurses5-dev build-essential bison flex libssl-dev bc pkg-config libudev-dev libssl-dev
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'armv7-unknown-linux-gnueabihf'
+        run: |
+          echo "RUSTFLAGS=-C linker=arm-linux-gnueabihf-gcc -L/usr/arm-linux-gnueabihf/lib" >> $GITHUB_ENV
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'arm-unknown-linux-gnueabi'
+        run: |
+          echo "RUSTFLAGS=-C linker=arm-linux-gnueabi-gcc -L/usr/arm-linux-gnueabi/lib" >> $GITHUB_ENV
+      - name: Configure Rust FLAGS
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          echo "RUSTFLAGS=-C linker=aarch64-linux-gnu-gcc -L/usr/aarch64-linux-gnu/lib" >> $GITHUB_ENV
+
       - name: Running cargo build
         uses: actions-rs/cargo@v1
         with:
           command: build
           toolchain: stable
-          args: --locked --release --target ${{ matrix.target }}"
+          args: --release --target ${{ matrix.target }}"
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Packaging final binary
