@@ -4,7 +4,7 @@ on:
 
 jobs:
   release:
-    name: release for linux-arm and linux-i686
+    name: release for linux-arm
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -12,8 +12,6 @@ jobs:
           [
             aarch64-unknown-linux-gnu,
             armv7-unknown-linux-gnueabihf,
-            i686-unknown-linux-gnu,
-            i686-unknown-linux-musl,
             arm-unknown-linux-gnueabi,
           ]
 
@@ -26,11 +24,7 @@ jobs:
           override: true
       - name: Checking out sources
         uses: actions/checkout@v1
-      - name: Installing musl
-        if: matrix.target == 'i686-unknown-linux-musl'
-        run: sudo apt-get install musl-tools gcc-multilib
       - name: Installing needed Ubuntu armhf dependencies
-        if: matrix.target == 'aarch64-unknown-linux-gnu' || matrix.target == 'armv7-unknown-linux-gnueabihf' || matrix.target == 'arm-unknown-linux-gnueabi'
         run: |
           sudo apt-get install -y -qq gcc-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross
       - name: Running cargo build
