@@ -26,8 +26,6 @@ jobs:
           override: true
       - name: Checking out sources
         uses: actions/checkout@v1
-      - name: Add OpenSSL package
-        run: echo 'openssl = { version = "0.10.41", features = ["vendored"] }' | tee -a Cargo.toml
       - name: Install Android NDK
         if: matrix.target == 'aarch64-linux-android' || matrix.target == 'i686-linux-android' || matrix.target == 'x86_64-linux-android' || matrix.target == 'armv7-linux-androideabi'
         run: |
