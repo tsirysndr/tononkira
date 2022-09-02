@@ -16,13 +16,12 @@ keywords = ["tokio", "lyrics", "cli"]
 [dependencies]
 clap = { version = "3.2.17", features = ["derive"] }
 colored_json = "2.1.0"
-http-client = { version = "6.5.3", features = ["rustls", "h1_client"], default-features = false }
 owo-colors = "3.5.0"
 rand = "0.8.5"
 scraper = "0.13.0"
 serde = "1.0.143"
 serde_json = "1.0.83"
-surf = { version = "2.3.2", features = ["h1-client-rustls"]}
+surf = { version = "2.3.2", features = ["h1-client-rustls"], default-features = false}
 tabled = "0.8.0"
 tokio = { version = "1.20.1", features = ["full"] }
 urlencoding = "2.1.0"
