@@ -2258,6 +2258,7 @@ version = "0.1.7"
 dependencies = [
  "clap",
  "colored_json",
+ "http-client",
  "owo-colors",
  "rand 0.8.5",
  "scraper",

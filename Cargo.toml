@@ -16,6 +16,7 @@ keywords = ["tokio", "lyrics", "cli"]
 [dependencies]
 clap = { version = "3.2.17", features = ["derive"] }
 colored_json = "2.1.0"
+http-client = { version = "6.5.3", features = ["rustls", "h1_client"], default-features = false }
 owo-colors = "3.5.0"
 rand = "0.8.5"
 scraper = "0.13.0"
