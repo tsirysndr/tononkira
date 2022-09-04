@@ -16,6 +16,9 @@
   <a href="https://github.com/tsirysndr/tononkira/actions/workflows/release.yml" target="_blank">
     <img alt="release" src="https://github.com/tsirysndr/tononkira/actions/workflows/release.yml/badge.svg" />
   </a>
+  <a href="https://github.com/tsirysndr/tononkira/actions/workflows/rust-clippy.yml" target="_blank">
+    <img alt="release" src="https://github.com/tsirysndr/tononkira/actions/workflows/rust-clippy.yml/badge.svg?branch=master" />
+  </a>
 </p>
 
 A command line interface for [tononkira.serasera.org](https://tononkira.serasera.org).
