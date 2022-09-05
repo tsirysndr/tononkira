@@ -33,7 +33,12 @@ Simply run:
 $ cargo install tononkira
 ```
 
-Or download the latest release for your platform from [here](https://github.com/tsirysndr/tononkira/releases).
+### macOS/Linux
+```bash
+$ brew install tsirysndr/tap/tononkira
+```
+
+Or download the latest release for your platform [here](https://github.com/tsirysndr/tononkira/releases).
 
 ## Usage
 
